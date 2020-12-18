@@ -1,1 +1,3 @@
 this is a test of git
+this is more text
+third line of text.
