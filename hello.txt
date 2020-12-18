@@ -1,3 +1,4 @@
 this is a test of git
 this is more text
 third line of text.
+this is the forth line of text on the Master branch.
