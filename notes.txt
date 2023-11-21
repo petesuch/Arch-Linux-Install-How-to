@@ -3,7 +3,7 @@
 ##  Comments have double hash tags '##'. Commands to be executed are bare:
 ls -alt
 
-##  Last edit: Sept 18, 2022
+##  Last edit: Nov 22, 2023
 
 ##  I recommend first attempting this within a virtualbox to get your feet wet.
 ##  BTW there's a little trick that allows you to copy and paste from
@@ -27,17 +27,12 @@ loadkeys us  # this is the default.
 ## The only reason to do this command is to see if your computer uses uefi.
 ls /sys/firmware/efi/efivars
 
-
-
-
-##  be done:
+## Enter this to sync clocks:
 timedatectl
-
 
 ## Partitioning...
 ##   this command lists disks available for partitioning.
 fdisk -l
-
 
 ##   This command actually begins to partition your drive
 fdisk /dev/sda
@@ -56,12 +51,12 @@ fdisk /dev/sda
 ##  because I often build a LinuxFromScratch system there.
 
 ##  On my system I have 4 primary partitions with no logical partitions.
-##  You could experiment here and make the last partition an  extended partiion
+##  You could experiment here and make the last partition an extended partiion
 ##  which would allow for further partitioning.  But lets just keep it simple...
 
 ##  Now make the file systems on your /dev/sda partitions...
 mkfs.ext4 /dev/sda1
-## If you have an efi/uefi system you will need to create a boot partion of roughly 600M
+## IF you have an efi/uefi system you will need to create a boot partion of roughly 600M
 ## and partion it as:
 mkfs.vfat -F 32 /dev/sda1
 
@@ -131,7 +126,7 @@ echo "mycomputername" > /etc/hostname
 ##  Samba is used for MS Windows connectivity in the same way you connect to
 ##  other machines on your Windows network: \\myotherlaptop\
 ##  on your network.  Check out my "smb.conf" for a very easy configuration.
-pacman -Sy samba grub efibootmgr
+pacman -Sy samba grub efibootmgr broadcom-wl
 
 
 ##  I prefer Grub as the boot loader. Execute these commands: (sda has no number)
@@ -168,18 +163,16 @@ systemctl enable smb nmb
 reflector --latest 40 --protocol http --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
 
-##  DO NOT forget to give your root a password!:
+##  DO NOT FORGET to give your root a password!:
 passwd root
 
 # Now exit the chroot shell:
 exit
 
-
 ##  Power off or reboot the system:
 ##  It's Ok to reboot at this point. Depending on how well you configured the
 ##  network... you may even have networking!
 systemctl poweroff
-
 
 ##  OR if you put hard drive first in the system boot order
 systemctl reboot
