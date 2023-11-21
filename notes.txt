@@ -28,8 +28,10 @@ loadkeys us  # this is the default.
 ls /sys/firmware/efi/efivars
 
 
-## This command *should* be done:
-timedatectl set-ntp true
+
+
+##  be done:
+timedatectl
 
 
 ## Partitioning...
@@ -59,6 +61,11 @@ fdisk /dev/sda
 
 ##  Now make the file systems on your /dev/sda partitions...
 mkfs.ext4 /dev/sda1
+## If you have an efi/uefi system you will need to create a boot partion of roughly 600M
+## and partion it as:
+mkfs.vfat -F 32 /dev/sda1
+
+## then make the file systems for the other partitions...
 mkfs.ext4 /dev/sda3
 mkswap /dev/sda2
 
@@ -97,7 +104,7 @@ hwclock --systohc
 ##  It's easy to forget that this new system may not have all the tools you may
 ##  be used to, so install an editor and other essentials along the way.
 ##  I like vim or neovim.
-pacman -Sy vim neovim nano
+pacman -Sy neovim nano
 
 
 ##  List whats on the new system. Do you have a bootloader like grub?
@@ -105,8 +112,7 @@ pacman -Q | less
 
 
 ##  Add your favorite tools...
-pacman -Sy grub openssh gcc bison python make cmake patch m4
-pacman -Sy btrfs-progs sudo virtualbox-guest-utils
+pacman -Sy base-devel grub openssh patch lynx neovim sudo
 
 
 ##  Edit: /etc/locale.gen by removing the hash comments for the language you
@@ -125,11 +131,14 @@ echo "mycomputername" > /etc/hostname
 ##  Samba is used for MS Windows connectivity in the same way you connect to
 ##  other machines on your Windows network: \\myotherlaptop\
 ##  on your network.  Check out my "smb.conf" for a very easy configuration.
-pacman -Sy samba
+pacman -Sy samba grub efibootmgr
 
 
 ##  I prefer Grub as the boot loader. Execute these commands: (sda has no number)
 grub-install /dev/sda
+## FOR EFI booting...
+grub-install --target=x86_64-efi --efi-directory=/boot --removable
+
 grub-mkconfig -o /boot/grub/grub.cfg
 
 
