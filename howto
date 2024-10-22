@@ -1,9 +1,28 @@
-##   This is a mini Arch Linux installation howto -- reference:
-##  "ArchLinux Installation Wiki"
+##  Last edit: October 22, 2024
+
+##  Ever since November of 2023 I have had an abysmal failure rate with installing Arch on 
+##  a measly Atom 4GB mini computer. Before Nov/23 I never had a problem with the EFI boot
+##  process. So this is my last try.  If this doesn't work I will hereby decree Beelink Atom 
+##  minicomputers as completely Arch incompatible. But this time I've got ChatGPT to make 
+##  my life better or worse?  We shall see.  One noteworthy observation: the Beelinks, since
+##  their so inexpensive, use flash memory and the main drive device shows up as /dev/mmcblk0.  
+##  Now there are two other drives (which I've been "told" not to touch /dev/mmcblk0bootx).  
+
+##  OK good News!!!  Arch still works on BeeLink Atoms in Oct 2024. I got it to boot correctly.
+##  I'll save configuration for another day. FreeBSD I had been using this past year mostly
+##  because it was so easy to install, but I wanted a FS that I could just unplug and plug into
+##  another computer... 
+##  and no NTFS, nor UFS is ok but not what I had in mind. Friends told me ZFS is the
+##  bomb -- and I would agree if you think overheating your Intel Atom with 4GB is smart.. (its not)
+##  I ended up wasting countless hours transfering data back and forth between UFS ext4 and ZFS.  
+##  My goals are pretty simple: Low cost, Low energy usage. Ok to spend more on decent SSDs.
+##  AND mirroriing. AFAIC there is no alternative RAID BLAH ... mirroring is the only answer.
+##  And the more hot swapable the better.  
+
+##   This is a mini Arch Linux installation howto -- reference: "ArchLinux Installation Wiki"
+##  Nostly written for myself.  If you enjoy it or it helps you that great!!!
 ##  Comments have double hash tags '##'. Commands to be executed are bare:
 ls -alt
-
-##  Last edit: Nov 26, 2023
 
 ##  I recommend first attempting this within a virtualbox to get your feet wet.
 ##  BTW there's a little trick that allows you to copy and paste from
@@ -59,6 +78,9 @@ mkfs.ext4 /dev/sda1
 ## IF you have an efi/uefi system you will need to create a boot partion of roughly 600M
 ## and partion it as:
 mkfs.vfat -F 32 /dev/sda1
+## for the Beelink its:
+mkfs.vfat -F 32 /dev/mmcblk0p1
+
 
 ## then make the file systems for the other partitions...
 mkfs.ext4 /dev/sda3
@@ -66,10 +88,17 @@ mkswap /dev/sda2
 
 ##  if you have a fourth partition:
 mkfs.ext4 /dev/sda4
+## or for the BEElink: 
+mkfs.ext4 /dev/mmcblk0p3
 
 ##  These command should be done in this order:
 mount /dev/sda3 /mnt
 mkdir /mnt/boot
+
+##  BEELINK: 
+mkdir -p /mnt/boot/efi
+mount /dev/mmcblk0p1 /boot/efi
+
 mount /dev/sda1 /mnt/boot
 swapon /dev/sda2
 
