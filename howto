@@ -26,11 +26,14 @@ ls -alt
 
 
 
-##  I recommend first attempting this within a virtualbox to get your feet wet.
+##  I recommend first attempting this endeavour of installing Arch within a virtualbox to get
+##  your feet wet.
 ##  BTW there's a little trick that allows you to copy and paste from
 ##  another machine or terminal.
-##    1) Use a Bridged Adapter in networking options if using a virtual machine
-##    2) Find the ip address of the archiso system:  ip addr  // for example mine is 192.168.0.103
+##    1) Use a Bridged Adapter in networking options if using a virtual machine ie VirtualBox.
+##    2) Find the ip address of the archiso system:  
+ip addr 
+##  for example mine is 192.168.0.4
 ##    3) Create a passwd for root: passwd root
 ##    4) enable sshd:  systemctl restart sshd
 ##    5) now from your outside machine or terminal, ssh into the archiso system:
