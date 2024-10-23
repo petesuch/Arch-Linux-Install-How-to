@@ -1,11 +1,16 @@
 ##  Last edit: October 22, 2024
 
+##  This is a mini Arch Linux installation howto -- reference: "ArchLinux Installation Wiki"
+##  Written for myself mostly, however...  If you enjoy it or it helps you that great!!!
+##  Comments have double hash tags '##'. Commands to be executed are bare:
+ls -alt
+
 ##  Ever since November of 2023 I have had an abysmal failure rate with installing Arch on 
 ##  a measly Atom 4GB mini computer. Before Nov/23 I never had a problem with the EFI boot
 ##  process. So this is my last try.  If this doesn't work I will hereby decree Beelink Atom 
 ##  minicomputers as completely Arch incompatible. But this time I've got ChatGPT to make 
 ##  my life better or worse?  We shall see.  One noteworthy observation: the Beelinks, since
-##  their so inexpensive, use flash memory and the main drive device shows up as /dev/mmcblk0.  
+##  they're so inexpensive, use flash memory and the main drive device shows up as /dev/mmcblk0.  
 ##  Now there are two other drives (which I've been "told" not to touch /dev/mmcblk0bootx).  
 
 ##  OK good News!!!  Arch still works on BeeLink Atoms in Oct 2024. I got it to boot correctly.
@@ -13,16 +18,13 @@
 ##  because it was so easy to install, but I wanted a FS that I could just unplug and plug into
 ##  another computer... 
 ##  and no NTFS, nor UFS is ok but not what I had in mind. Friends told me ZFS is the
-##  bomb -- and I would agree if you think overheating your Intel Atom with 4GB is smart.. (its not)
+##  bomb -- and I would agree if you think overheating your Intel Atom with 4GB is smart.. (its not).
 ##  I ended up wasting countless hours transfering data back and forth between UFS ext4 and ZFS.  
 ##  My goals are pretty simple: Low cost, Low energy usage. Ok to spend more on decent SSDs.
 ##  AND mirroriing. AFAIC there is no alternative RAID BLAH ... mirroring is the only answer.
 ##  And the more hot swapable the better.  
 
-##   This is a mini Arch Linux installation howto -- reference: "ArchLinux Installation Wiki"
-##  Nostly written for myself.  If you enjoy it or it helps you that great!!!
-##  Comments have double hash tags '##'. Commands to be executed are bare:
-ls -alt
+
 
 ##  I recommend first attempting this within a virtualbox to get your feet wet.
 ##  BTW there's a little trick that allows you to copy and paste from
@@ -128,7 +130,7 @@ hwclock --systohc
 ##  It's easy to forget that this new system may not have all the tools you may
 ##  be used to, so install an editor and other essentials along the way.
 ##  I like vim or neovim.
-pacman -Sy neovim nano
+pacman -Sy neovim less bzip2
 
 
 ##  List whats on the new system. Do you have a bootloader like grub?
@@ -143,10 +145,8 @@ pacman -Sy base-devel grub openssh patch lynx neovim sudo
 ##   intend to use.  For English speakers of the US, uncomment en_US.UTF-8
 vim /etc/locale.gen
 
-
 ## then execute...
 locale-gen
-
 
 ## Give a name to your new system:
 echo "mycomputername" > /etc/hostname
@@ -155,16 +155,20 @@ echo "mycomputername" > /etc/hostname
 ##  Samba is used for MS Windows connectivity in the same way you connect to
 ##  other machines on your Windows network: \\myotherlaptop\
 ##  on your network.  Check out my "smb.conf" for a very easy configuration.
-pacman -Sy samba grub efibootmgr broadcom-wl
+pacman -Sy samba grub efibootmgr broadcom-wl(for Lenovo wireless)
 
 
 ##  I prefer Grub as the boot loader. Execute these commands: (sda has no number)
 grub-install /dev/sda
+
 ## FOR EFI booting...
 grub-install --target=x86_64-efi --efi-directory=/boot --removable
 
-grub-mkconfig -o /boot/grub/grub.cfg
+##  BEELINK:
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
 
+
+grub-mkconfig -o /boot/grub/grub.cfg
 
 ##  Networking - so you're up and running when you reboot...
 ##  Make and edit this file:
