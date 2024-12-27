@@ -93,8 +93,8 @@ mkswap /dev/sda2
 
 ##  if you have a fourth partition:
 mkfs.ext4 /dev/sda4
-## or for the BEElink: 
-mkfs.ext4 /dev/mmcblk0p3
+## or for the BEElink... block sizes of 4k seem to be prefered for sd and flash drives.
+mkfs.ext4 -b 4096 /dev/mmcblk0p3
 
 ##  These command should be done in this order:
 mount /dev/sda3 /mnt
@@ -113,9 +113,10 @@ mount /dev/sda4 /mnt/lfs
 ##  pacstrap is basically an initial installation manager where the linux system
 ##  will be created on /mnt   Other packages can be added here like...
 ##  grub git sudo openssh.
-pacstrap /mnt linux linux-firmware base sudo openssh grub
+##  I prefer to use the lts kernel:
+pacstrap /mnt linux-lts linux-firmware base sudo openssh grub
 
-## Create an fstab for the new system
+## Create an fstab for the new system:
 genfstab -U /mnt >> /mnt/etc/fstab
 
 ## edit /mnt/etc/fstab if needed.
@@ -124,6 +125,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 ................................................................................
 ## AFTER the NEXT COMMAND the /mnt partition is the / (root) of the system!
 ................................................................................
+
 arch-chroot /mnt
 
 ##  Adjust to your city and adjust the system to the system clock
