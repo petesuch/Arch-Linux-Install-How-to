@@ -1,89 +1,87 @@
-##  Last edit: October 22, 2024
+#  Last edit: April 21, 2025
 
-##  This is a mini Arch Linux installation howto -- reference: "ArchLinux Installation Wiki"
-##  Written for myself mostly, however...  If you enjoy it or it helps you that great!!!
-##  Comments have double hash tags '##'. Commands to be executed are bare:
+# This is a mini Arch Linux installation howto -- reference: "ArchLinux Installation Wiki"
+#  Written for myself mostly, however...  If you enjoy it or it helps you that great!!!
+#  Comments have double hash tags '##'. Commands to be executed are bare:
 ls -alt
 
-##  Ever since November of 2023 I have had an abysmal failure rate with installing Arch on 
-##  a measly Atom 4GB mini computer. Before Nov/23 I never had a problem with the EFI boot
-##  process. So this is my last try.  If this doesn't work I will hereby decree Beelink Atom 
-##  minicomputers as completely Arch incompatible. But this time I've got ChatGPT to make 
-##  my life better or worse?  We shall see.  One noteworthy observation: the Beelinks, since
-##  they're so inexpensive, use flash memory and the main drive device shows up as /dev/mmcblk0.  
-##  Now there are two other drives (which I've been "told" not to touch /dev/mmcblk0bootx).  
+#  Ever since November of 2023 I have had an abysmal failure rate with installing Arch on 
+#  a measly Atom 4GB mini computer. Before Nov/23 I never had a problem with the EFI boot
+#  process. So this is my last try. If this doesn't work I will hereby decree Beelink Atom 
+#  minicomputers as completely Arch incompatible.But this time I've got ChatGPT to make 
+#  my life better or worse? We shall see. One noteworthy observation: the Beelinks, since
+#  they're so inexpensive, use flash memory and the main drive device shows up as /dev/mmcblk0.  
+#  Now there are two other drives (which I've been "told" not to touch /dev/mmcblk0bootx).  
 
-##  OK good News!!!  Arch still works on BeeLink Atoms in Oct 2024. I got it to boot correctly.
-##  I'll save configuration for another day. FreeBSD I had been using this past year mostly
-##  because it was so easy to install, but I wanted a FS that I could just unplug and plug into
-##  another computer... 
-##  and no NTFS, nor UFS is ok but not what I had in mind. Friends told me ZFS is the
-##  bomb -- and I would agree if you think overheating your Intel Atom with 4GB is smart.. (its not).
-##  I ended up wasting countless hours transfering data back and forth between UFS ext4 and ZFS.  
-##  My goals are pretty simple: Low cost, Low energy usage. Ok to spend more on decent SSDs.
-##  AND mirroriing. AFAIC there is no alternative RAID BLAH ... mirroring is the only answer.
-##  And the more hot swapable the better.  
+#  OK good News! Arch still works on BeeLink Atoms in April 2025. I got it to boot correctly.
+#  I'll save configuration for another day.FreeBSD I had been using this past year mostly
+#  because it was so easy to install, but I wanted a FS that I could just unplug and plug into
+#  another computer... 
+#  and no NTFS, nor UFS is ok but not what I had in mind. Friends told me ZFS is great.
+#  However my experience with cheap hardware is to avoid using zfs.  
+#  My goals are pretty simple: Low cost, Low energy usage. Ok to spend more on decent SSDs.
+#  AND mirroring. AFAIC mirroring is the only answer.
+#  And the more hot swapable the better.  
 
-
-
-##  I recommend first attempting this endeavour of installing Arch within a virtualbox to get
-##  your feet wet.
-##  BTW there's a little trick that allows you to copy and paste from
-##  another machine or terminal.
-##    1) Use a Bridged Adapter in networking options if using a virtual machine ie VirtualBox.
-##    2) Find the ip address of the archiso system:  
+#  I recommend first attempting this endeavour of installing Arch within a virtualbox to get
+#  your feet wet.
+#  BTW there's a little trick that allows you to copy and paste from another machine or
+#  terminal:
+#    1) Use a Bridged Adapter in networking options if using a virtual machine ie VirtualBox.
+#    2) Find the ip address of the archiso system:  
 ip addr 
-##  for example mine is 192.168.0.4
-##    3) Create a passwd for root: passwd root
-##    4) enable sshd:  systemctl restart sshd
-##    5) now from your outside machine or terminal, ssh into the archiso system:
-##        ssh -l root 192.168.xxx.xxx
+#  for example mine is 192.168.0.4
+#    3) Create a passwd for root: passwd root
+#    3.5) edit /etc/ssh/sshd_config: PermitRootLogin yes
+#    4) enable sshd:  systemctl restart sshd
+#    5) now from your outside machine or terminal,ssh into the archiso system:        
+ssh -l root 192.168.xxx.xxx
 
+# So let's get to the meat of it, shall we?
 
-## So let's get to the meat of it, shall we?
-
-## The first several commands in the Arch Installation guide are not needed for users
-## living in the United States and who speak English and use US keyboards:
+# The first several commands in the Arch Installation guide are not needed for users
+# living in the United States and who speak English and use US keyboards:
 ls /usr/share/kbd/keymaps/**/*.map.gz | less # lists all the keyboard keymaps.
 loadkeys us  # this is the default.
 
-
-## The only reason to do this command is to see if your computer uses uefi.
+# The only reason to do this command is to see if your computer uses uefi.
 ls /sys/firmware/efi/efivars
 
-## Enter this to sync clocks:
+# Enter this to sync clocks:
 timedatectl
 
-## Partitioning...
-##   this command lists disks available for partitioning.
+# Partitioning...
+#   this command lists disks available for partitioning.
 fdisk -l
 
-##   This command actually begins to partition your drive
+#   This command actually begins to partition your drive
 fdisk /dev/sda
 
-##  fdisk important commands: m is menu; p is for print; n for new partition;
-##  w is for write and exit.  t is for type of partition.  82 is Linux Swap
-##  a is toggle boot for a partition
-##  fdisk is pretty easy once you get the hang of it. basically press n for new
-##  partition and then follow the dialog.  Dont play around with the offsets.
-##  Your biggest concern is sizes of the partitions you want.
+#  fdisk important commands: m is menu; p is for print; n for new partition;
+#  w is for write and exit.  t is for type of partition.  82 is Linux Swap
+#  a is toggle boot for a partition
+#  fdisk is pretty easy once you get the hang of it. basically press n for new
+#  partition and then follow the dialog.  Dont play around with the offsets.
+#  Your biggest concern is sizes of the partitions you want.
 
-##  Generally I use roughly 700MB for /dev/sda1 which will be later on be the
-##  /mnt/boot partition.  Then I add 2gb for /dev/sda2 which will later be made
-##  swap.  Roughly 50gb for /dev/sda3 for the / partition is more than enough
-##  if not using a window manager then I also added roughly 50gb for /dev/sda4
-##  because I often build a LinuxFromScratch system there.
+#  Generally I use roughly 500MB for /dev/sda1 which will be later on be the
+#  /mnt/boot partition.  Then I add 2gb for /dev/sda2 which will later be made
+#  swap.  Roughly 50gb for /dev/sda3 for the / partition is more than enough
+#  if not using a window manager then I also added roughly 50gb for /dev/sda4
+#  because I often build a LinuxFromScratch system there.
 
-##  On my system I have 4 primary partitions with no logical partitions.
-##  You could experiment here and make the last partition an extended partiion
-##  which would allow for further partitioning.  But lets just keep it simple...
+#  On my system I have 4 primary partitions with no logical partitions.
+#  You could experiment here and make the last partition an extended partiion
+#  which would allow for further partitioning.  But lets just keep it simple...
 
-##  Now make the file systems on your /dev/sda partitions...
+#  Now make the file systems on your /dev/sda partitions...
 mkfs.ext4 /dev/sda1
-## IF you have an efi/uefi system you will need to create a boot partion of roughly 600M
-## and partion it as:
+# IF you have an efi/uefi system you will need to create a boot partion of roughly 600M
+# and partion it as:
+
 mkfs.vfat -F 32 /dev/sda1
-## for the Beelink its:
+
+# for the Beelink its:
 mkfs.vfat -F 32 /dev/mmcblk0p1
 
 
@@ -91,30 +89,30 @@ mkfs.vfat -F 32 /dev/mmcblk0p1
 mkfs.ext4 /dev/sda3
 mkswap /dev/sda2
 
-##  if you have a fourth partition:
+#  if you have a fourth partition:
 mkfs.ext4 /dev/sda4
-## or for the BEElink... block sizes of 4k seem to be prefered for sd and flash drives.
+# or for the BEElink... block sizes of 4k seem to be prefered for sd and flash drives.
 mkfs.ext4 -b 4096 /dev/mmcblk0p3
 
-##  These command should be done in this order:
+#  These command should be done in this order:
 mount /dev/sda3 /mnt
 mkdir /mnt/boot
 
 ##  BEELINK: 
-mkdir -p /mnt/boot/efi
+mkdir -pv /mnt/boot/efi
 mount /dev/mmcblk0p1 /boot/efi
 
 mount /dev/sda1 /mnt/boot
 swapon /dev/sda2
 
-##  If you have a fourth partiion
+#  If you have a fourth partiion for playing around...
 mount /dev/sda4 /mnt/lfs
 
-##  pacstrap is basically an initial installation manager where the linux system
-##  will be created on /mnt   Other packages can be added here like...
-##  grub git sudo openssh.
-##  I prefer to use the lts kernel:
-pacstrap /mnt linux-lts linux-firmware base sudo openssh grub
+#  pacstrap is basically an initial installation manager where the linux system
+#  will be created on /mnt   Other packages can be added here like...
+#  grub git sudo openssh.
+#  I prefer to use the lts kernel:
+pacstrap /mnt linux-lts linux-firmware base sudo openssh grub efibootmgr
 
 ## Create an fstab for the new system:
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -132,9 +130,9 @@ arch-chroot /mnt
 ln -sf /usr/share/zoneinfo/<YourRegion>/<YourCity> /etc/localtime
 hwclock --systohc
 
-##  It's easy to forget that this new system may not have all the tools you may
-##  be used to, so install an editor and other essentials along the way.
-##  I like vim or neovim.
+#  It's easy to forget that this new system may not have all the tools you may
+#  be used to, so install an editor and other essentials along the way.
+#  I like vim or neovim.
 pacman -Sy neovim less bzip2
 
 
@@ -143,7 +141,7 @@ pacman -Q | less
 
 
 ##  Add your favorite tools...
-pacman -Sy base-devel grub openssh patch lynx neovim sudo
+pacman -Sy base-devel grub openssh patch lynx neovim rsync samba
 
 
 ##  Edit: /etc/locale.gen by removing the hash comments for the language you
@@ -157,49 +155,53 @@ locale-gen
 echo "mycomputername" > /etc/hostname
 
 
-##  Samba is used for MS Windows connectivity in the same way you connect to
-##  other machines on your Windows network: \\myotherlaptop\
-##  on your network.  Check out my "smb.conf" for a very easy configuration.
-pacman -Sy samba grub efibootmgr broadcom-wl(for Lenovo wireless)
+#  Samba is used for MS Windows connectivity in the same way you connect to
+#  other machines on your Windows network: \\myotherlaptop\
+#  on your network.  Check out my "smb.conf" for a very easy configuration.
+
+pacman -Sy samba grub efibootmgr broadcom-wl (for Lenovo wireless laptop)
 
 
-##  I prefer Grub as the boot loader. Execute these commands: (sda has no number)
+#  I prefer Grub as the boot loader. Execute these commands: (sda has no number)
 grub-install /dev/sda
 
-## FOR EFI booting...
+# FOR EFI booting...
 grub-install --target=x86_64-efi --efi-directory=/boot --removable
 
-##  BEELINK:
+#  BEELINK:
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
 
-
+# Then no matter what system you're using:
 grub-mkconfig -o /boot/grub/grub.cfg
 
-##  Networking - so you're up and running when you reboot...
-##  Make and edit this file:
+#  Networking - so you're up and running when you reboot...
+#  Make and edit this file:
+
 vim /etc/systemd/network/10-enp0s3.network
-##  use my "10.enp0s3.network" in configuration_files as an example.
 
-##  Btw, The exact title is not very important. However the file name shoud start
-##  with a number and include a description of the device and then end with
-##  DOT network.
+#  use my "10.enp0s3.network" in configuration_files as an example.
+
+#  Btw, The exact title is not very important. However the file name shoud start
+#  with a number and include a description of the device and then end with
+#  DOT network.
 
 
-##  These commands will enable networking and sshd at boot assuming you have
-##  configured and installed them.
+#  These commands will enable networking and sshd at boot assuming you have
+#  configured and installed them:
+
 systemctl enable systemd-networkd
 systemctl enable systemd-resolved
 systemctl enable sshd
 
 
-## If you plan to use samba:
+# If you plan to use samba:
+
 systemctl enable smb nmb
+# But you'll need to edit /etc/samba/smb.conf first. See my configuration files for ideas.
 
-
-##  IF you have installed reflector to find the fastest mirrors near you;
-##  enter this command... (however, I think they're deprecating reflector... so your mileage may vary.)
-reflector --latest 40 --protocol http --protocol https --sort rate --save /etc/pacman.d/mirrorlist
-
+# IF you have installed reflector, find the fastest mirrors near you;
+#  enter this command:  (Note its been moved to the AUR.)
+reflector --latest 40 --sort rate --save /etc/pacman.d/mirrorlist
 
 ##  DO NOT FORGET to give your root a password!:
 passwd root
@@ -207,9 +209,10 @@ passwd root
 # Now exit the chroot shell:
 exit
 
-##  Power off or reboot the system:
-##  It's Ok to reboot at this point. Depending on how well you configured the
-##  network... you may even have networking!
+#  Power off or reboot the system:
+#  It's Ok to reboot at this point. Depending on how well you configured the
+#  network... you may even have networking!
+
 systemctl poweroff
 
 ##  OR if you put hard drive first in the system boot order
