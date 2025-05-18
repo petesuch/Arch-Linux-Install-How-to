@@ -199,12 +199,16 @@ systemctl enable sshd
 systemctl enable smb nmb
 # But you'll need to edit /etc/samba/smb.conf first. See my configuration files for ideas.
 
-# IF you have installed reflector, find the fastest mirrors near you;
+# IF you have installed reflector from the AUR find the fastest mirrors near you;
 #  enter this command:  (Note its been moved to the AUR.)
 reflector --latest 40 --sort rate --save /etc/pacman.d/mirrorlist
 
 ##  DO NOT FORGET to give your root a password!:
 passwd root
+
+##  ALSO ITs a VERY GOOD idea to create a regular user account that can su to root:
+useradd -G wheel littlejimmie
+passwd littlejimmie
 
 # Now exit the chroot shell:
 exit
